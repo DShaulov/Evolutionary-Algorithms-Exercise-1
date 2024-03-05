@@ -1,7 +1,5 @@
-import math
 import random
-import matplotlib as plt
-
+import time
 
 def init_population(population_size):
     """
@@ -10,7 +8,7 @@ def init_population(population_size):
     """
     population = []
     indices = [1,2,3,4,5,6,7,8]
-    for i in range(len(population_size)):
+    for i in range(population_size):
         new_board = indices.copy()
         random.shuffle(new_board)
         population.append(new_board)
@@ -43,6 +41,15 @@ def selection(population, fitness_scores):
         if random_value <= iter_sum:
             return population[i]
 
+def elitism_selection(population, fitness_scores, elite_size):
+    """
+    Uses elitism selection according to elite_size
+    """
+    sorted_indices = sorted(range(len(fitness_scores)), key=lambda i: fitness_scores[i], reverse=True)
+    top_indices = sorted_indices[:elite_size]
+    chosen_index = random.choice(top_indices)
+    return population[chosen_index]
+
 def crossover(crossover_type, parent_A, parent_B, mutation_rate, mutation_repeat):
     """
     Performs crossover according to the specified type.
@@ -59,13 +66,42 @@ def crossover(crossover_type, parent_A, parent_B, mutation_rate, mutation_repeat
     return children
 
 def single_point_crossover(parent_A, parent_B):
-    return
+    """
+    Performs single point crossover and returns two children
+    """
+    indices = list(range(1, 8))
+    crossover_index = random.choice(indices)
+    first_child = parent_A[:crossover_index] + parent_B[crossover_index:]
+    second_child = parent_B[:crossover_index] + parent_A[crossover_index:]
+    return [first_child, second_child]
 
 def two_point_crossover(parent_A, parent_B):
-    return
+    """
+    Performs two-point crossover and returns two children
+    """
+    indices = random.sample(range(1, 8), 2)
+    indices.sort()
+    crossover_index1, crossover_index2 = indices
+    first_child = parent_A[:crossover_index1] + parent_B[crossover_index1:crossover_index2] + parent_A[crossover_index2:]
+    second_child = parent_B[:crossover_index1] + parent_A[crossover_index1:crossover_index2] + parent_B[crossover_index2:]
+    return [first_child, second_child]
 
 def uniform_crossover(parent_A, parent_B):
-    return
+    """
+    Performs uniform crossover and returns two children.
+    """
+    first_child = []
+    second_child = []
+
+    for gene_A, gene_B in zip(parent_A, parent_B):
+        if random.random() < 0.5:
+            first_child.append(gene_A)
+            second_child.append(gene_B)
+        else:
+            first_child.append(gene_B)
+            second_child.append(gene_A)
+    
+    return [first_child, second_child]
 
 def mutation(board, mutation_repeat):
     """
@@ -82,34 +118,50 @@ def mutation(board, mutation_repeat):
     return
 
 
-def eight_queens_bruteforce():
+def eight_queens_bruteforce(repeat):
     """
     Tries to solve the 8-queen puzzle using brute force
     """
+    start_time = time.time()
+    solutions = dict()
+    for i in range(repeat):
+        new_board = random.choices(range(1, 9), k=8)
+        if fitness(new_board) == 28:
+            board_as_tuple = tuple(new_board)
+            if board_as_tuple not in solutions:
+                print(new_board)
+                solutions[board_as_tuple] = new_board
+    end_time = time.time()
+    print("Found " + str(len(solutions)) + " unique solutions")
+    print(end_time - start_time)
     return
 
 if __name__ == "__main__":
+    # eight_queens_bruteforce(10000000)
+    start_time = time.time()
     # Hyper paramters
-    num_generations = 30
-    population_size = 100
-    crossover_type = "single_point"
-    mutation_rate = 0.1
+    num_generations = 10000
+    population_size = 300
+    crossover_type = "uniform"
+    mutation_rate = 0.4
     mutation_repeat = 1
 
     # Main loop
     population = init_population(population_size)
-    max_fitness_values = []
-    for i in range(len(num_generations)):
+    solutions = dict()
+    elapsed_generations = 0
+    for i in range(num_generations):
         # Evaluate fitness
         fitness_scores = [fitness(board) for board in population]
         max_fitness_index = fitness_scores.index(max(fitness_scores))
-        max_fitness_values.append(fitness_scores[max_fitness_index])
         # Check if a solution has been found
-        if fitness_scores[max_fitness_index] == 28:
-            print("Generation Number " + i)
-            print(population[max_fitness_index])
-            break
-        
+        for j in range(len(fitness_scores)):
+            if fitness_scores[j] == 28:
+                board_as_tuple = tuple(population[j])
+                if board_as_tuple not in solutions:
+                    print(str(population[j]) + ", Generation: " + str(i))
+                    solutions[board_as_tuple] = population[j]
+
         # Create the next generation
         new_population = []
         while len(new_population) < population_size:
@@ -118,13 +170,8 @@ if __name__ == "__main__":
             children = crossover(crossover_type, parent_A, parent_B, mutation_rate, mutation_repeat)
             new_population += children
         population = new_population
+        elapsed_generations += 1
 
-    # Delete later
-    generations = [i for i in range(1, num_generations+1)]
-    # Creating the plot
-    plt.plot(generations, max_fitness_values, marker='o')  # Plots the data points and connects them with a line
-    plt.title('Best Performing Chromosome over Generations')  # Title of the plot
-    plt.xlabel('Generation')  # Label for the x-axis
-    plt.ylabel('Best Score')  # Label for the y-axis
-    plt.grid(True)  # Adds a grid for easier reading
-    plt.show()  # Displays the plot
+    print("Solutions found: " + str(len(solutions)))
+    end_time = time.time()
+    print("Total runtime: " + str(end_time - start_time))
