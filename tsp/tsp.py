@@ -1,7 +1,7 @@
 import random
 import time
 import math
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 def init_population(population_size):
     """
@@ -116,14 +116,13 @@ def mutation(route):
     route.insert(new_index, city_at_index)
     return
 
-
 if __name__ == "__main__":
     start_time = time.time()
     # Hyper paramters
     num_generations = 10000
-    population_size = 400
-    elitism_size = 5
-    mutation_rate = 0.05
+    population_size = 250
+    elitism_size = 10
+    mutation_rate = 0.1
     s_type = "elitism"
 
     # Main loop
@@ -166,11 +165,16 @@ if __name__ == "__main__":
     end_time = time.time()
     print("Total runtime: " + str(end_time - start_time))
 
-    plt.figure(figsize=(10, 6))
-    plt.plot(best_gen_routes, label='Shortest Distance')
-    plt.title('Evolution of the Best Route Distance over Generations')
-    plt.xlabel('Generation')
-    plt.ylabel('Distance')
-    plt.legend()
-    plt.grid(True)
-    plt.show()
+    # plt.figure(figsize=(10, 6))
+    # plt.plot(best_gen_routes, label='Shortest Distance')
+    # plt.title('Evolution of the Best Route Distance over Generations')
+    # plt.xlabel('Generation')
+    # plt.ylabel('Distance')
+    # plt.legend()
+    # plt.grid(True)
+    # plt.show()
+
+    file_name = 'test.txt'
+    with open(file_name, 'w') as file:
+        for city in best_route:
+            file.write(f"{city}\n")
