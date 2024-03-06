@@ -174,7 +174,7 @@ if __name__ == "__main__":
     # plt.grid(True)
     # plt.show()
 
-    file_name = 'test.txt'
-    with open(file_name, 'w') as file:
-        for city in best_route:
-            file.write(f"{city}\n")
+    # file_name = 'test.txt'
+    # with open(file_name, 'w') as file:
+    #     for city in best_route:
+    #         file.write(f"{city}\n")
