@@ -124,26 +124,29 @@ def eight_queens_bruteforce(repeat):
     """
     start_time = time.time()
     solutions = dict()
+    indices = [1,2,3,4,5,6,7,8]
     for i in range(repeat):
-        new_board = random.choices(range(1, 9), k=8)
+        new_board = indices.copy()
+        random.shuffle(new_board)
         if fitness(new_board) == 28:
             board_as_tuple = tuple(new_board)
             if board_as_tuple not in solutions:
                 print(new_board)
                 solutions[board_as_tuple] = new_board
+                break
     end_time = time.time()
     print("Found " + str(len(solutions)) + " unique solutions")
     print(end_time - start_time)
     return
 
 if __name__ == "__main__":
-    # eight_queens_bruteforce(10000000)
+    # eight_queens_bruteforce(1000000)
     start_time = time.time()
     # Hyper paramters
     num_generations = 10000
-    population_size = 300
-    crossover_type = "uniform"
-    mutation_rate = 0.4
+    population_size = 500
+    crossover_type = "single_point"
+    mutation_rate = 0.05
     mutation_repeat = 1
 
     # Main loop
@@ -155,13 +158,14 @@ if __name__ == "__main__":
         fitness_scores = [fitness(board) for board in population]
         max_fitness_index = fitness_scores.index(max(fitness_scores))
         # Check if a solution has been found
+        solution_found = False
         for j in range(len(fitness_scores)):
             if fitness_scores[j] == 28:
-                board_as_tuple = tuple(population[j])
-                if board_as_tuple not in solutions:
-                    print(str(population[j]) + ", Generation: " + str(i))
-                    solutions[board_as_tuple] = population[j]
-
+                solution_found = True
+                print(str(population[j]) + ", Generation: " + str(i))
+                break
+        if solution_found:
+            break
         # Create the next generation
         new_population = []
         while len(new_population) < population_size:
@@ -172,6 +176,5 @@ if __name__ == "__main__":
         population = new_population
         elapsed_generations += 1
 
-    print("Solutions found: " + str(len(solutions)))
     end_time = time.time()
     print("Total runtime: " + str(end_time - start_time))
